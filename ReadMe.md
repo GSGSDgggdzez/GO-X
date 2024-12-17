@@ -1,191 +1,185 @@
-# Twitter Clone - Backend Development Plan
+# Waterfall Model Plan for Twitter Clone Backend (Go + MySQL)
 
-## Project Overview
-This project is a backend clone of **Twitter** with the following core features:
-- User authentication and registration (sign-up, login, password recovery)
-- Posting tweets, liking, and retweeting
-- Following/unfollowing users and viewing timelines
-- Real-time updates using websockets or polling
-- Caching popular tweets using Redis
-- Rate limiting to avoid abuse of the API
-
-## **Phase 1: Project Setup & Environment Configuration**
-
-### **Tasks**:
-1. **Choose Tech Stack**:
-   - **Backend Framework**: Express.js (Node.js), Django (Python), Flask (Python), or Spring Boot (Java)
-   - **Database**: PostgreSQL (relational), MongoDB (NoSQL)
-   - **Real-time Communication**: WebSockets (Socket.io), Redis Pub/Sub
-   - **Caching**: Redis or Memcached
-   - **Authentication**: JWT (JSON Web Tokens) for stateless auth, OAuth for social login (optional)
-   - **Version Control**: Git (use GitHub or GitLab)
-   
-2. **Set Up the Development Environment**:
-   - Set up a version control system (Git)
-   - Initialize a project directory and install dependencies
-   - Set up environment variables (e.g., database URL, JWT secret, etc.)
-
-3. **Choose and Set Up Deployment Environment**:
-   - Set up Docker for containerization (optional)
-   - Use AWS, Google Cloud, or Heroku for deployment (if you're deploying after development)
+## Overview
+The **Waterfall Model** is a linear and sequential software development process. In this approach, each phase of the project must be completed before moving on to the next phase. Below is a breakdown of each phase for developing the **Twitter Clone Backend** using **Go** and **MySQL**.
 
 ---
 
-## **Phase 2: User Authentication & Registration**
+## **Phase 1: Requirements Gathering & System Design**
 
 ### **Tasks**:
-1. **Create User Model**:
-   - Store user details: username, email, password (hashed), profile info, and timestamps for registration and last login.
-   - Optionally, add an `is_verified` flag for email verification.
+- **Identify Core Features**: Understand the basic features that need to be implemented (authentication, posting tweets, following users, etc.).
+- **Tech Stack Decision**: Confirm the backend stack: 
+  - **Go (Golang)** for the backend.
+  - **MySQL** for the database.
+  - **Redis** for caching and rate-limiting.
+  - **WebSockets** for real-time updates.
+- **Database Design**: Design the structure of the database. Define key entities like Users, Tweets, Likes, and Followers.
 
-2. **Authentication Endpoints**:
-   - **POST /auth/register**: Allow users to sign up with a unique username, email, and password.
-     - Hash password using bcrypt.
-   - **POST /auth/login**: Allow users to log in with email/username and password.
-     - Generate and return a JWT token.
-   - **POST /auth/forgot-password**: Handle password recovery (send email with reset link).
-   - **POST /auth/reset-password**: Allow users to reset their password with a token.
-
-3. **Middleware**:
-   - Create a middleware to protect private routes (authentication middleware that verifies JWT).
+### **Outputs**:
+- **System Architecture**: A clear understanding of how the components (Go backend, MySQL, Redis) will interact.
+- **Database Schema**: Detailed tables and relationships (users, tweets, follows, likes).
 
 ---
 
-## **Phase 3: Tweets and Interactions**
+## **Phase 2: System & Database Setup**
 
 ### **Tasks**:
-1. **Create Tweet Model**:
-   - Store details: user ID (FK), tweet content, timestamp, and optional media (image/video).
-   - Add a reference for retweets (optional).
+- **Set Up MySQL Database**: 
+  - Install MySQL and create a database.
+  - Define tables for Users, Tweets, Likes, Followers, etc.
+- **Set Up Go Development Environment**:
+  - Install Go and set up the project structure.
+  - Install necessary Go packages (e.g., **Gin** or **Echo** for routing, **GORM** for MySQL ORM, **JWT** for authentication, **gorilla/websocket** for real-time updates).
+- **Set Up Redis for Caching & Rate Limiting**.
 
-2. **API Endpoints for Tweets**:
-   - **POST /tweets**: Create a new tweet (with or without media).
-   - **GET /tweets/:id**: Get a tweet by ID (useful for retweets, replies).
-   - **GET /tweets**: Get all tweets (e.g., for the home timeline).
-   - **POST /tweets/:id/like**: Like a tweet.
-   - **POST /tweets/:id/retweet**: Retweet a tweet.
-   - **DELETE /tweets/:id**: Delete a tweet.
-
-3. **Create Like and Retweet Models**:
-   - Create a **Likes** table (user ID, tweet ID).
-   - Create a **Retweets** table (user ID, tweet ID).
-
-4. **Rate Limiting**:
-   - Implement rate limiting (e.g., 5 requests per second) using **Redis** or an API rate-limiting package.
+### **Outputs**:
+- **Database Ready**: MySQL database set up and connected to the Go backend.
+- **Go Environment**: The Go environment is set up and ready for development.
+- **Redis Configured**: Redis installed and configured for caching and rate-limiting.
 
 ---
 
-## **Phase 4: Followers & Following System**
+## **Phase 3: User Authentication & Registration**
 
 ### **Tasks**:
-1. **Create Follow Model**:
-   - Store following relationships (follower_id, following_id).
-   - Implement following/unfollowing functionality.
+- **Create User Model**: Define the `User` model in Go and the corresponding MySQL schema (with fields like `username`, `email`, `password`, etc.).
+- **Implement Sign-Up and Login**:
+  - **POST /auth/register**: Implement user registration with hashed password.
+  - **POST /auth/login**: Implement login functionality that returns a JWT token.
+  - **POST /auth/forgot-password**: Implement password recovery.
+  - **POST /auth/reset-password**: Implement password reset using a token.
+- **JWT Authentication**: Implement middleware to protect routes using JWT.
 
-2. **API Endpoints for Following**:
-   - **POST /users/:id/follow**: Follow a user.
-   - **POST /users/:id/unfollow**: Unfollow a user.
-   - **GET /users/:id/followers**: Get the list of followers for a user.
-   - **GET /users/:id/following**: Get the list of people a user is following.
-
-3. **Feed Logic**:
-   - Build an algorithm to fetch tweets for the home timeline (tweets from followed users).
-   - Sort by recency or popularity (e.g., like/retweet count).
+### **Outputs**:
+- **User Authentication System**: Fully working user sign-up, login, and password recovery.
+- **JWT Middleware**: Middleware to authenticate protected routes using JWT.
 
 ---
 
-## **Phase 5: Real-Time Updates with WebSockets**
+## **Phase 4: Tweets & Interactions**
 
 ### **Tasks**:
-1. **Set Up WebSocket Server**:
-   - Use **Socket.io** or native WebSockets to push updates to clients in real-time.
-   - Set up a WebSocket server that can broadcast new tweets or likes to connected users.
+- **Create Tweet Model**: Define the `Tweet` model and corresponding table in MySQL. Include fields like `content`, `user_id` (FK), `timestamp`, etc.
+- **Implement Tweet API**:
+  - **POST /tweets**: Allow users to post tweets.
+  - **GET /tweets/:id**: Fetch a specific tweet by ID.
+  - **GET /tweets**: Fetch a timeline of tweets.
+  - **POST /tweets/:id/like**: Allow users to like a tweet.
+  - **POST /tweets/:id/retweet**: Allow users to retweet a tweet.
+  - **DELETE /tweets/:id**: Allow users to delete a tweet.
+- **Create Like and Retweet Models**: Define models to track likes and retweets (with user and tweet references).
 
-2. **Real-Time Tweet Updates**:
-   - When a new tweet is posted or liked, use WebSockets to notify all users who might be affected.
-   - **Example**: When User A tweets, send real-time updates to User A’s followers.
-
-3. **Message Broadcasting**:
-   - On new tweet creation or retweet, broadcast it to users' connected clients via WebSockets.
-   - Implement **broadcasting channels** (e.g., by user or feed) to ensure relevant users are notified.
+### **Outputs**:
+- **Tweet API**: Complete functionality for posting, liking, retweeting, and deleting tweets.
+- **Like & Retweet Models**: Data models for tracking tweet interactions.
 
 ---
 
-## **Phase 6: Caching Popular Tweets**
+## **Phase 5: Followers & Following System**
 
 ### **Tasks**:
-1. **Set Up Redis Caching**:
-   - Use **Redis** to cache tweets with the most likes/retweets to speed up fetching them for high-traffic users.
-   - Cache timelines for users who have a large following to reduce database load.
+- **Create Follow Model**: Define the `Follow` model to store the relationship between users (who follows whom).
+- **Implement Following System**:
+  - **POST /users/:id/follow**: Follow a user.
+  - **POST /users/:id/unfollow**: Unfollow a user.
+  - **GET /users/:id/followers**: Get the list of followers for a user.
+  - **GET /users/:id/following**: Get the list of people a user is following.
+- **Feed Logic**: Create an algorithm to show tweets from users that a particular user is following (home timeline).
 
-2. **Cache Expiry**:
-   - Set appropriate **TTL (time-to-live)** values for cached data (e.g., 10-15 minutes).
-   - Cache popular tweets and invalidate the cache when tweets are updated or deleted.
-
-3. **Use Redis for Rate Limiting**:
-   - Implement rate-limiting logic with Redis to prevent abuse, especially for actions like tweeting or following.
+### **Outputs**:
+- **Follow API**: Complete functionality for following and unfollowing users.
+- **Home Timeline**: Feed that shows tweets from followed users.
 
 ---
 
-## **Phase 7: API Design (REST or GraphQL)**
+## **Phase 6: Real-Time Updates with WebSockets**
 
 ### **Tasks**:
-1. **RESTful API Design**:
-   - Design REST API endpoints for user interactions (e.g., posting tweets, following users).
-   - Use REST conventions like **GET** for retrieving data, **POST** for creating, **PUT/PATCH** for updating, and **DELETE** for removing resources.
+- **Set Up WebSocket Server**: Implement WebSockets using **gorilla/websocket** or Go's native **net/http** package.
+- **Real-Time Updates**:
+  - Send real-time notifications for new tweets, likes, and retweets.
+  - Push updates to connected clients in real-time when a new tweet is posted or liked.
+- **Message Broadcasting**: Set up message channels so that only relevant users are notified (e.g., followers of a user).
 
-2. **Optional: Implement GraphQL**:
-   - If you want to use GraphQL, set up a GraphQL server with queries for retrieving user data, tweets, and followers.
-   - Allow users to query specific data in a flexible way (e.g., query tweets from followed users).
+### **Outputs**:
+- **WebSocket Server**: A WebSocket server that pushes updates in real-time.
+- **Real-Time Tweet Updates**: Real-time notifications for new tweets, likes, and retweets.
+
+---
+
+## **Phase 7: Caching & Rate Limiting**
+
+### **Tasks**:
+- **Set Up Redis for Caching**:
+  - Cache popular tweets using Redis (e.g., tweets with the most likes/retweets).
+  - Cache timelines for users with many followers to reduce database load.
+- **Implement Rate Limiting**:
+  - Use Redis to limit requests (e.g., 5 requests per second) to prevent abuse of the API.
+  - Cache rate-limited data for efficient checking.
+
+### **Outputs**:
+- **Cached Tweets & Timelines**: Popular tweets and timelines cached for faster access.
+- **Rate Limiting**: Rate-limiting applied to prevent abuse of the API.
 
 ---
 
 ## **Phase 8: Security & Scalability**
 
 ### **Tasks**:
-1. **Data Security**:
-   - Use **bcrypt** to hash passwords before storing them.
-   - Store JWT tokens securely (in headers or cookies).
+- **Secure the Application**:
+  - Use **bcrypt** for hashing passwords before storing them in MySQL.
+  - Ensure that JWT tokens are securely handled (e.g., in headers).
+- **Scalability**:
+  - Implement **horizontal scaling** with load balancing to handle high traffic.
+  - Use a cloud provider like **AWS** for auto-scaling and load balancing.
+  - Configure **Redis** for high availability and redundancy.
 
-2. **Scalable Architecture**:
-   - Use **load balancers** to distribute traffic across multiple backend servers.
-   - Set up **horizontal scaling** with cloud providers (AWS, Azure, etc.).
-
-3. **Log Management & Monitoring**:
-   - Integrate **logging** for API requests, errors, and performance metrics.
-   - Use a service like **Loggly**, **AWS CloudWatch**, or **Elasticsearch** for log aggregation.
+### **Outputs**:
+- **Secure System**: Passwords and tokens are securely handled.
+- **Scalable Architecture**: The system is ready to handle large amounts of traffic.
 
 ---
 
-## **Phase 9: Testing and Debugging**
+## **Phase 9: Testing & Debugging**
 
 ### **Tasks**:
-1. **Unit and Integration Tests**:
-   - Write unit tests for API endpoints, models, and real-time features using **Jest**, **Mocha**, or **pytest**.
-   - Test database queries, user authentication, and tweet interactions.
+- **Unit & Integration Tests**: Write tests for individual components (user authentication, tweets, likes, follows, etc.).
+- **Load Testing**: Test how the system performs under high traffic using tools like **Artillery** or **Apache JMeter**.
+- **Debugging**: Address any issues or bugs identified during testing.
 
-2. **Load Testing**:
-   - Use tools like **Artillery** or **Apache JMeter** to test the scalability and performance under load.
+### **Outputs**:
+- **Tested System**: Comprehensive unit and integration tests to ensure the application works as expected.
+- **Performance Metrics**: Load testing results and improvements for handling traffic.
 
 ---
 
 ## **Phase 10: Deployment & Documentation**
 
 ### **Tasks**:
-1. **Deploy the Application**:
-   - Deploy the app to a cloud platform like **AWS** (EC2, Lambda), **Heroku**, or **DigitalOcean**.
-   - Set up continuous integration/continuous deployment (CI/CD) pipelines using **GitHub Actions**, **GitLab CI**, or **Jenkins**.
+- **Deploy the Application**:
+  - Deploy the Go backend to a cloud platform like **AWS**, **Heroku**, or **DigitalOcean**.
+  - Use **Docker** for containerization (optional).
+  - Set up **CI/CD pipelines** for automatic deployments.
+- **API Documentation**:
+  - Use **Swagger** or **Postman** to generate API documentation.
+  - Document API endpoints, request/response formats, and authentication.
 
-2. **Document the API**:
-   - Use tools like **Swagger** or **Postman** to generate API documentation.
-   - Document endpoints, request/response formats, and authentication.
+### **Outputs**:
+- **Deployed System**: The system is live and accessible.
+- **Documentation**: Clear API documentation for developers to interact with the backend.
 
 ---
 
-## Summary of Key Areas:
-- **User Authentication**: JWT, password hashing, account management.
-- **Tweet System**: CRUD operations for tweets, likes, and retweets.
-- **Follow System**: Manage follow/unfollow relationships.
-- **Real-Time Updates**: WebSockets for live notifications.
-- **Caching**: Use Redis for popular tweets and rate limiting.
-- **Scalability**: Load balancing, horizontal scaling, cloud deployment.
+## Summary of Phases:
+
+1. **Requirements Gathering**: Define core features and system design.
+2. **System Setup**: Set up MySQL, Go, Redis.
+3. **User Authentication**: Implement sign-up, login, and JWT authentication.
+4. **Tweets & Interactions**: Implement tweet creation, likes, and retweets.
+5. **Followers System**: Implement following/unfollowing and timelines.
+6. **Real-Time Updates**: Implement WebSockets for real-time updates.
+7. **Caching & Rate Limiting**: Cache popular tweets and implement rate limiting.
+8. **Security & Scalability**: Ensure the system is secure and scalable.
+9. **Testing & Debugging**: Perform testing and resolve bugs.
+10. **Deployment & Documentation**: Deploy the system and document the API.
